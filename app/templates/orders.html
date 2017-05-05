@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}联运收入汇总{% endblock %}
+
+{% block page_content %}
+
+<div class = 'container'>
+
+	<div class= 'jumbotron'>
+		<h2>联运收入汇总</h2>
+		<p>可以将多个平台订单合并去除第三方订单然后按日期结算收入</p>
+		<p>文件需全部关闭</p>
+		<p>请在下方输入文件夹路径，将合并目标文件夹下所有excel文件。</p>
+	</div>
+</div>
+
+{{ wtf.quick_form(form) }}
+{% if dates %}
+	<div class='table-responsive'>
+		<table class='table table-striped'>
+			<thead><tr><th>日期</th><th>金额</th></tr></thead>
+			<tbody>
+				{% for date in dates%}
+				<tr><td>{{date}}</td><td>{{ revenue[date] }}</td></tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}
+{% endblock %}

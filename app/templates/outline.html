@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}概述{% endblock %}
+
+{% block page_content %}
+
+<div class = 'container'>
+
+	<div class= 'jumbotron'>
+		<h2>概述合并工具</h2>
+		<p>可以将多个平台概述进行数据透视然后合并</p>
+		<p>需要起始及结束日期相同，且文件全部关闭</p>
+		<p>请在下方输入文件夹路径，将合并目标文件夹下所有excel文件。</p>
+	</div>
+</div>
+
+{{ wtf.quick_form(form) }}
+
+{% endblock %}

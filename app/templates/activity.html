@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% import '_macros.html' as macros %}
+
+{% block title %}活动表{% endblock %}
+
+{% block page_content %}		
+<div class = 'container'>
+
+	<div class= 'jumbotron'>
+		<h2 id = 'top'>活动一览</h2>
+		<p>提供所有活动的查询</p>
+		<p>可查询活动id、艺术字id等</p>
+		<p>请勿输入多个查询条件</p>
+	</div>
+	
+</div>
+
+<form method='POST',action='/items'>
+	{{ form1.csrf_token }}
+	{{ form1.hidden_tag() }}
+	{{ form1.name.label }}{{form1.name}}
+	{{ form1.activity_id.label }}{{form1.activity_id}}
+	{{ form1.submit }}
+	<a href = "{{url_for('.import_csv',end_point=end_point,project=project)}}">导入csv</a>
+	{% if csv %}<a href="{{url_for('.cancel_import',end_point=end_point,project=project)}}">取消导入</a>{% endif %}
+	<a href = "{{url_for('.export',end_point=end_point,project=project)}}">导出excel</a>
+</form>
+
+{% if csv %}
+{{ wtf.quick_form(form2) }}
+{% endif %}
+
+{% if pagination %}
+	<div class='table-responsive'>
+		<table class='table table-striped'>
+			<thead><tr><th>活动类型id</th><th>活动名称</th><th>艺术字id</th><th>项目</th><th><a href="{{url_for('main.add_activity',project=project)}}">添加</a></th></tr></thead>
+			<tbody>
+				{% for item in pagination%}
+				<tr>
+					<td>{{item['activity_id']}}</td>
+					<td>{{item['name']}}</td>
+					<td>{{item['art_id']}}</td>
+					<td>{{item['project']}}</td>
+					<td>
+						<a href = "{{url_for('main.edit_activity',id=item['activity_id'],project=item['project'])}}">编辑</a>/
+						<a href = "{{url_for('main.delete_activity',id=item['activity_id'],project=item['project'])}}">删除</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}
+
+{% if pagination %}
+<div class = 'pagination'>
+	{{ macros.pagination_widget(activities,end_point,fragmeng='#top',project=project) }}
+</div>
+{% endif %}
+{% endblock %}

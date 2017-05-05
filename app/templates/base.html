@@ -1,0 +1,60 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}运营工作{% endblock %}
+
+{% block navbar %}
+<nav class='navbar navbar-default navbar-fixed-top'>
+	<div class='container'>
+		<div class='navbar-header'>
+			<button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#navbar' aria-expanded='false' aria-controls='navbar'>
+				<span class='sr-only'>这是啥？</span>
+				<span class='icon-bar'></span>
+				<span class='icon-bar'></span>
+				<span class='icon-bar'></span>
+			</button>
+			<a class='navbar-brand' href='#'>运营工具</a>
+		</div>
+		<div id='navbar' class='navbar-collapse collapse'>
+			<ul class='nav navbar-nav'>
+				<li class='active'><a href="{{url_for('.index')}}">首页</a></li>
+				<li><a href="{{url_for('.outline',project=project)}}">概述</a></li>
+				<li><a href="{{url_for('.orders',project=project)}}">准确收入</a></li>
+				<li><a href="{{url_for('.items',project=project)}}">道具</a></li>
+				<li class='dropdown'>
+					<a href='/outline/' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+						活动相关
+						<span class='caret'></span>
+					</a>
+					<ul class='dropdown-menu'>
+						<li><a href="{{url_for('.atype',project=project)}}">活动类型</a></li>
+						<li><a href="{{url_for('.others')}}">其他</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class='container'>
+	{% for message in get_flashed_messages() %}
+	<div class='alert alert-warning'>
+		<button type='button' class='close' data-dismiss='alert'>&times;</button>
+		{{message}}
+	</div>
+	{% endfor %}
+	{% block page_content %}
+	{% endblock %}
+</div>
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link href='https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet'>
+<link href="{{url_for('static',filename='navbar-fixed-top.css')}}" rel='stylesheet'>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% import '_macros.html' as macros %}
+
+{% block title %}道具表{% endblock %}
+
+<!--{#% block navbar %#}
+{{super()}}
+
+<nav class = 'navbar-fixed-top'>
+	<div class='container'>
+		<div class = 'navbar-collapse collapse' id='navbar'>
+			<ul class = 'nav navbar-nav navbar-right'>
+				<li><a href = "{{url_for('.import_csv',end_point=end_point,project=project)}}">导入csv</a></li>
+				{% if csv %}<li><a href="{{url_for('.cancel_import',end_point=end_point,project=project)}}">取消导入</a></li>{% endif %}
+				<li><a href = "{{url_for('.export',end_point=end_point,project=project)}}">导出excel</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+{#% endblock %#}
+-->
+{% block page_content %}		
+<div class = 'container'>
+
+	<div class= 'jumbotron'>
+		<h2 id = 'top'>道具一览</h2>
+		<p>提供所有道具的查询</p>
+		<p>可根据项目、语言版本查询</p>
+		<p>请勿输入多个冲突的查询条件</p>
+	</div>
+	
+</div>
+
+<form method='POST',action='/items'>
+	{{ form1.csrf_token }}
+	{{ form1.hidden_tag() }}
+	{{ form1.name.label }}{{form1.name}}
+	{{ form1.item_id.label }}{{form1.item_id}}
+	{{ form1.function_id.label }}{{form1.function_id}}
+	{{ form1.language.label }}{{form1.language}}
+	{{ form1.submit }}
+	<a href = "{{url_for('.import_csv',end_point=end_point,project=project)}}">导入csv</a>
+	{% if csv %}<a href="{{url_for('.cancel_import',end_point=end_point,project=project)}}">取消导入</a>{% endif %}
+	<a href = "{{url_for('.export',end_point=end_point,project=project)}}">导出excel</a>
+</form>
+
+{% if csv %}
+{{ wtf.quick_form(form2) }}
+{% endif %}
+
+{% if pagination %}
+	<div class='table-responsive'>
+		<table class='table table-striped'>
+			<thead><tr><th>道具id</th><th>道具名称</th><th>功能id</th><th>语言版本</th><th>项目</th><th><a href="{{url_for('main.additem',project=project)}}">添加</a></th></tr></thead>
+			<tbody>
+				{% for item in pagination%}
+				<tr>
+					<td>{{item['item_id']}}</td>
+					<td>{{item['name']}}</td>
+					<td>{{item['function_id']}}</td>
+					<td>{{item['language']}}</td>
+					<td>{{item['project']}}</td>
+					<td>
+						<a href = "{{url_for('main.edit',id=item['item_id'],language=item['language'],project=item['project'])}}">编辑</a>/
+						<a href = "{{url_for('main.delete_item',id=item['item_id'],language=item['language'],project=item['project'])}}">删除</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}
+
+{% if pagination %}
+<div class = 'pagination'>
+	{{ macros.pagination_widget(items,end_point,fragmeng='#top',project=project) }}
+</div>
+{% endif %}
+{% endblock %}

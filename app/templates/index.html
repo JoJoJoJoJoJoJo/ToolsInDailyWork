@@ -1,0 +1,72 @@
+{% extends 'bootstrap/base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}主页{% endblock %}
+
+{% block head %}
+{{super()}}
+<meta http-equiv='X-UA-Compatible content='IE=edge'>
+<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<link href="{{url_for('static',filename='cover.css')}}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	<div class='site-wrapper'>
+
+		<div class='site-wrapper-inner'>
+	
+			<div class='cover-container'>
+		
+				<div class='masthead clearfix'>
+					<div class='inner'>
+						<h3 class='masthead-brand'>日常运营工具</h3>
+						<nav>
+							<ul class='nav masthead-nav'>
+								<li class='active'><a href='#'>主页</a></li>
+								<li>
+									<form method='POST' action='/'>
+										{{ form.hidden_tag() }}
+										{{ form.name.label }}{{form.name(style='background-color:black')}}
+										{{ form.confirm(style='color:black') }}
+									</form>
+								</li>
+								<!--<li><form action="/" method='POST'>
+										<label>选择平台</label>
+										<select name='' style='background-color:gray'>
+											<option type='submit' name='values' value='naruto'>火影</option>
+											<option type='submit' name='values' value='dragon_ball'>龙珠</option>
+										</select>
+									</form>
+								</li>-->
+							</ul>
+						</nav>
+					</div>
+				</div>
+			
+				<div class='inner cover'>
+					<h1 class='cover-heading'>欢迎！</h1>
+					<p class='lead'>请在右上角选择项目名称，然后选择工具</p>
+					<ul class='nav navbar- nav navar-middle'>
+						<li><a class='btn btn-lg btn-default' href="{{url_for('main.outline',project=project)}}">概述</a></li>
+						<li><a class='btn btn-lg btn-default' href="{{url_for('main.orders',project=project)}}">准确收入</a></li>
+						<li><a class='btn btn-lg btn-default' href="{{url_for('main.items',project=project)}}">道具</a></li>
+						<li><a class='btn btn-lg btn-default' href="{{url_for('main.atype',project=project)}}">活动相关</a></li>
+					</ul>
+				</div>
+			
+				<div class='mastfoot'>
+					<div class='inner'>
+						<p>contact me at <a href='whr428@163.com'>whr428@163.com</a></p>
+					</div>
+				</div>
+			
+			</div>
+	
+		</div>
+
+	</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+{% endblock %}
