@@ -188,6 +188,7 @@ def atype(project):
 		
 	import_form = ImportForm()
 	if import_form.validate_on_submit():
+		#这里其实没必要存，可以直接读
 		filename = files.save(import_form.csv.data,name='activities.csv')
 		try:
 			datas = pd.read_csv('activities.csv',sep='\t',index_col=0,error_bad_lines=False,na_values=None)
@@ -290,6 +291,40 @@ def cancel_import(end_point,project='naruto'):
 	resp.set_cookie('import','',max_age=60)
 	return resp
 
-@main.route('/others/')
-def others():
-	return 'nothing!'
+@main.route('/others/<project>',methods=['GET','POST'])
+def others(project):
+	art_form = ArtIdForm()
+	ids = [6,8,9]
+	#这样可以避免同一页面上的不同表单同时验证
+	#先后顺序不能反
+	if art_form.submit1.data and art_form.validate_on_submit():
+		#这.. \n不生效，必须是' '
+		#这样只能支持中文输入了... 英文之间的空格无法判定
+		names = art_form.activity.data.split(' ')
+		for name in names:
+			activity = Activity.query.filter_by(name=name,project=project).first()
+			if activity:
+				ids.append(activity.art_id)
+		#去除没有匹配到id的部分，也即去除None
+		#不需要，在查询时就可以判定
+		'''while True:
+			try:
+				l.remove(None)
+			except ValueError:#ValueError: list.remove(x): x not in list
+				break'''
+	item_form = ItemIdForm()
+	items = {}
+	list_of_items = []
+	if item_form.submit2.data and item_form.validate_on_submit():
+		names = item_form.names.data.split(' ')
+		for name in names:
+			items={}#循环开始前需初始化
+			item = Items.query.filter_by(name=name,project=project,language_version='CN').first()
+			if item:
+				items['id'] = item.id
+				items['item_id'] = item.item_id
+				items['name'] = item.name
+				items['function_id'] = item.function_id
+			items['input'] = name
+			list_of_items.append(items)
+	return render_template('others.html',form1=art_form,ids=ids,project=project,form2=item_form,item_list=list_of_items)

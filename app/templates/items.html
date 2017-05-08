@@ -36,7 +36,7 @@
 	{{ form1.csrf_token }}
 	{{ form1.hidden_tag() }}
 	{{ form1.name.label }}{{form1.name}}
-	{{ form1.item_id.label }}{{form1.item_id}}
+	{{ form1.item_id.label }}{{form1.item_id}}<!--{{form1.errors.values()}}这样可以捕捉自定义的报错信息-->
 	{{ form1.function_id.label }}{{form1.function_id}}
 	{{ form1.language.label }}{{form1.language}}
 	{{ form1.submit }}

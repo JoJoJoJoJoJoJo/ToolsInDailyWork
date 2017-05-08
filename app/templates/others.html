@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}其他{% endblock %}
+
+{% block page_content %}
+
+<div class = 'container'>
+
+	<div class= 'jumbotron'>
+		<h2>其他工具</h2>
+		<p>道具id、艺术字id批量匹配</p>
+		<p>jason字符串生成</p>
+		<p>以及其他</p>
+	</div>
+</div>
+
+{{ wtf.quick_form(form1) }}
+{% for id in ids %}
+	{{id}},
+{% endfor %}
+
+<p>
+
+{{ wtf.quick_form(form2) }}
+</p>
+
+{% if item_list %}
+	<div class='table-responsive'>
+		<table class='table table-striped'>
+			<thead>
+				<tr>
+					<th>输入</th>
+					<th>id</th>
+					<th>道具Id</th>
+					<th>道具名称</th>
+					<th>功能id</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in item_list %}
+				<tr>
+					<td>{{ item['input'] }}</td>
+					<td>{{ item.get('id') }}</td>
+					<td>{{ item.get('item_id') }}</td>
+					<td>{{ item.get('name') }}</td>
+					<td>{{ item.get('function_id') }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}
+
+{% endblock %}

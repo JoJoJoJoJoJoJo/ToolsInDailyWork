@@ -47,3 +47,13 @@ class ActivityEditForm(FlaskForm):
 	art_id = IntegerField(u'艺术字id',validators=[Optional(),NumberRange(0,100)])
 	project = RadioField(u'项目',choices=[('naruto',u'火影'),('dragonball',u'龙珠')])
 	submit = SubmitField(u'提交')
+	
+class ArtIdForm(FlaskForm):
+	activity = StringField(u'活动列表',validators=[DataRequired()])
+	#同一页面上的两个表单，判断是通过字典{'submit':True},所以要不同的名字
+	submit1 = SubmitField(u'提交')
+	
+class ItemIdForm(FlaskForm):
+	names = StringField(u'道具列表',validators=[Required()])
+	#language = SelectField(u'语言版本',choices=[('ALL',u'全部'),('CN',u'国内'),('US','NA'),('FR',u'法语'),('BR',u'巴西'),('TH',u'泰语')])
+	submit2 = SubmitField(u'提交')
