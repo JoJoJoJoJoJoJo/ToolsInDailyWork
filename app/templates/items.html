@@ -52,7 +52,7 @@
 {% if pagination %}
 	<div class='table-responsive'>
 		<table class='table table-striped'>
-			<thead><tr><th>道具id</th><th>道具名称</th><th>功能id</th><th>语言版本</th><th>项目</th><th><a href="{{url_for('main.additem',project=project)}}">添加</a></th></tr></thead>
+			<thead><tr><th>道具id</th><th>道具名称</th><th>功能id</th><th>语言版本</th><th>项目</th><th>备注</th><th><a href="{{url_for('main.additem',project=project)}}">	添加</a></th></tr></thead>
 			<tbody>
 				{% for item in pagination%}
 				<tr>
@@ -61,6 +61,13 @@
 					<td>{{item['function_id']}}</td>
 					<td>{{item['language']}}</td>
 					<td>{{item['project']}}</td>
+					<td>
+						{% if item.get('comment') %}
+						{{ item['comment'] }}
+						{% else %}
+						{{ item['chinese'] }}
+						{% endif %}
+					</td>
 					<td>
 						<a href = "{{url_for('main.edit',id=item['item_id'],language=item['language'],project=item['project'])}}">编辑</a>/
 						<a href = "{{url_for('main.delete_item',id=item['item_id'],language=item['language'],project=item['project'])}}">删除</a>

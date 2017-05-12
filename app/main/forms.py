@@ -31,7 +31,8 @@ class ImportForm(FlaskForm):
 class ItemEditForm(FlaskForm):
 	name = StringField(u'道具名称',validators=[Required()])
 	item_id = IntegerField(u'道具id',validators=[Required(),NumberRange(0,20000000)])
-	function_id = IntegerField(u'功能id',validators=[Required(),NumberRange(0,12000000)])
+	function_id = IntegerField(u'功能id',validators=[NumberRange(0,12000000)])
+	comment = StringField(u'备注',validators=[Optional()])
 	language = SelectField(u'语言版本',choices=[('CN',u'国内'),('US','NA'),('FR',u'法语'),('BR',u'巴西'),('TH',u'泰语')])
 	project = RadioField(u'项目',choices=[('naruto',u'火影'),('dragonball',u'龙珠')])
 	submit = SubmitField(u'提交')
@@ -57,3 +58,8 @@ class ItemIdForm(FlaskForm):
 	names = StringField(u'道具列表',validators=[Required()])
 	#language = SelectField(u'语言版本',choices=[('ALL',u'全部'),('CN',u'国内'),('US','NA'),('FR',u'法语'),('BR',u'巴西'),('TH',u'泰语')])
 	submit2 = SubmitField(u'提交')
+	
+class PackForm(FlaskForm):
+	items = StringField(u'道具',validators=[Required()])
+	language = SelectField(u'语言版本',choices=[('ALL',u'全部'),('CN',u'国内'),('US','NA'),('FR',u'法语'),('BR',u'巴西'),('TH',u'泰语')])
+	submit3 = SubmitField(u'提交')

@@ -10,7 +10,17 @@ class Items(db.Model):
 	function_id = db.Column(db.BigInteger,default=0)
 	language_version = db.Column(db.String(64),default='CN')
 	project = db.Column(db.String(64))
+	comment = db.Column(db.String(64))
 	
+	@property
+	def chinese(self):
+		if self.comment:
+			return self.comment
+		else:
+			item = Items.query.filter_by(item_id=self.item_id,project=self.project,language_version='CN').first()
+			if item:
+				return item.name
+			
 	def __repr__(self):
 		return u'<项目:%s;道具名称:%s>'%(self.project,self.name)
 	

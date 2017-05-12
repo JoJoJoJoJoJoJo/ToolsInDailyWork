@@ -7,6 +7,7 @@ import os
 from .orders import *
 import pandas as pd
 from ..models import *
+import json
 
 @main.route('/',methods=['GET','POST'])
 def index():
@@ -84,7 +85,9 @@ def items(project):
 		'name':item.name,
 		'function_id':item.function_id,
 		'project':item.project,
-		'language':item.language_version} for item in items.items]
+		'language':item.language_version,
+		'comment':item.comment,
+		'chinese':item.chinese} for item in items.items]
 		
 	import_form = ImportForm()
 	if import_form.validate_on_submit():
@@ -129,6 +132,7 @@ def edit(id):
 		item.function_id = form.function_id.data
 		item.language_version = form.language.data
 		item.project = form.project.data
+		item.comment = form.comment.data
 		db.session.add(item)
 		db.session.commit()
 		return redirect(url_for('.items',project=project))
@@ -137,6 +141,7 @@ def edit(id):
 	form.function_id.data = item.function_id
 	form.language.data = item.language_version
 	form.project.data = item.project
+	form.comment.data = item.comment
 	return render_template('edit.html',project=project,form=form)
 
 @main.route('/additem/<project>',methods=['GET','POST'])
@@ -306,17 +311,17 @@ def others(project):
 			if activity:
 				ids.append(activity.art_id)
 		#去除没有匹配到id的部分，也即去除None
-		#不需要，在查询时就可以判定
-		'''while True:
+		while True:
 			try:
-				l.remove(None)
+				ids.remove(None)
 			except ValueError:#ValueError: list.remove(x): x not in list
-				break'''
+				break
+	
 	item_form = ItemIdForm()
 	items = {}
 	list_of_items = []
 	if item_form.submit2.data and item_form.validate_on_submit():
-		names = item_form.names.data.split(' ')
+		names = item_form.names.data.replace('%n','').split(' ')
 		for name in names:
 			items={}#循环开始前需初始化
 			item = Items.query.filter_by(name=name,project=project,language_version='CN').first()
@@ -327,4 +332,33 @@ def others(project):
 				items['function_id'] = item.function_id
 			items['input'] = name
 			list_of_items.append(items)
-	return render_template('others.html',form1=art_form,ids=ids,project=project,form2=item_form,item_list=list_of_items)
+		
+	pack_form = PackForm()
+	desc = ''
+	item_json = None
+	if pack_form.submit3.data and pack_form.validate_on_submit():
+		items = pack_form.items.data.split('%n')#[item*n]
+		for i in items:
+			name,amount = i.split('*')
+			item_from_comment = Items.query.filter_by(comment=name,project=project,language_version=pack_form.language.data).first()
+			item_cn = Items.query.filter_by(name=name,project=project,language_version='CN').first()
+			if item_cn:
+				item_from_chinese = Items.query.filter_by(item_id=item_cn.item_id,project=project,language_version=pack_form.language.data).first()
+			else:
+				item_from_chinese = None
+				#不优雅 这么多if
+			if item_from_comment:
+				item_desc = item_from_comment.name+'*'+amount+'%n'
+				item_dict = dict([('amount',int(amount)),('code',item_from_comment.item_id),('type',1)])
+				list_of_items.append(item_dict)
+			elif item_from_chinese:
+				item_desc = item_from_chinese.name+'*'+amount+'%n'
+				item_dict = dict([('amount',int(amount)),('code',item_from_chinese.item_id),('type',1)])
+				list_of_items.append(item_dict)
+			else:
+				item_desc = i+'CHINESE NOT FOUND  '
+			desc += item_desc
+			#去最后一个%n
+		desc = desc[:-2]
+		item_json = json.dumps(list_of_items)
+	return render_template('others.html',form1=art_form,ids=ids,project=project,form2=item_form,form3=pack_form,item_list=list_of_items,desc=desc,json=item_json)
