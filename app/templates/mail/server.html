@@ -1,0 +1,20 @@
+<h2>明日新服</h2>
+
+<table>
+	<thead>
+		<tr>
+			<th>项目</th><th>平台</th><th>服务器</th><th>开服日期</th><th>开服时间</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for server in servers %}
+		<tr>
+			<td>{{ server.project }}</td>
+			<td>{{ server.platform }}</td>
+			<td>{{ server.server_id }}</td>
+			<td>{{ server.date }}</td>
+			<td>{{ server.time }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

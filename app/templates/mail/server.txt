@@ -1,0 +1,10 @@
+明日新服
+
+项目	平台	服务器		开服日期		开服时间
+{% for server in servers %}
+{{ server.project }}
+{{ server.platform }}
+{{ server.server_id }}
+{{ server.date }}
+{{ server.time }}
+{% endfor %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% import '_macros.html' as macros %}
+
+{% block title %}开服计划{% endblock %}
+
+{% block page_content %}		
+<div class = 'container'>
+
+	<div class= 'jumbotron'>
+		<h2 id = 'top'>开服计划</h2>
+		<p>今日起的开服计划</p>
+		<p>每天18:00自动发邮件提示明日开服（尚未实现）</p>
+	</div>
+	
+</div>
+
+{% if csv %}
+{{wtf.quick_form(form)}}
+<a href="{{url_for('.cancel_import',end_point=end_point,project=project)}}">取消导入</a>
+{% endif %}
+
+	<div class='table-responsive'>
+		<table class='table table-striped'>
+			<thead><tr><th>id</th><th>项目</th><th>平台</th><th>服务器</th><th>开服日期</th><th>开服时间</th>
+				<th>
+					<a href="{{url_for('main.add_servers',project=project)}}">添加</a>/
+					<a href="{{url_for('main.import_csv',project=project,end_point=end_point)}}">批量添加</a>
+				</th></tr></thead>
+			<tbody>
+				{% for server in servers %}
+				<tr>
+					<td>{{server['id']}}</td>
+					<td>{{server['project']}}</td>
+					<td>{{server['platform']}}</td>
+					<td>{{server['server_id']}}</td>
+					<td>{{server['date']}}</td>
+					<td>{{server['time']}}</td>
+					<td>
+						<a href = "{{url_for('main.edit_servers',id=server['id'],project=project)}}">编辑</a>/
+						<a href = "{{url_for('main.delete_servers',id=server['id'],project=project)}}">删除</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+
+{% if pagination %}
+<div class = 'pagination'>
+	{{ macros.pagination_widget(pagination,end_point,fragmeng='#top',project=project) }}
+</div>
+{% endif %}
+{% endblock %}

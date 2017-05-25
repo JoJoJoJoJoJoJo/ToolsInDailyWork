@@ -8,6 +8,9 @@ from .orders import *
 import pandas as pd
 from ..models import *
 import json
+import datetime
+import time
+from ..email import send_mail
 
 @main.route('/',methods=['GET','POST'])
 def index():
@@ -361,4 +364,98 @@ def others(project):
 			#去最后一个%n
 		desc = desc[:-2]
 		item_json = json.dumps(list_of_items)
-	return render_template('others.html',form1=art_form,ids=ids,project=project,form2=item_form,form3=pack_form,item_list=list_of_items,desc=desc,json=item_json)
+	
+	path_form = PathForm()
+	if path_form.submit.data and path_form.validate_on_submit():
+		with open (path_form.path.data,'a+') as f:
+			lines = f.readlines()
+			for line in lines:
+				price1,price2,price3,price4,price5=line.split()
+				price_list = map(dict,[
+					[('rate','55000'),('price',price1)],
+					[('rate','25000'),('price',price2)],
+					[('rate','10000'),('price',price3)],
+					[('rate','6000'),('price',price4)],
+					[('rate','4000'),('price',price5)]])
+				price_json = json.dumps(price_list)
+				f.write('\n'+price_json)
+			f.close()
+		flash('successful')
+	return render_template('others.html',form1=art_form,ids=ids,project=project,form2=item_form,form3=pack_form,form4=path_form,item_list=list_of_items,desc=desc,json=item_json)
+	
+@main.route('/new_servers/',methods=['GET','POST'])
+def new_servers():
+	project = request.args.get('project') or 'naruto'
+	current_date = datetime.date.today()
+	page = request.args.get('page',1,type=int)
+	pagination = ServerInfo.query.filter(ServerInfo.date>=current_date).order_by(ServerInfo.date).paginate(page,per_page=20,error_out=False)
+	servers = [{'id':item.id,
+		'project':item.project,
+		'platform':item.platform,
+		'server_id':item.server_id,
+		'date':item.date,
+		'time':item.time} for item in pagination.items]
+		
+	form = ImportForm()
+	if form.validate_on_submit():
+		try:
+			datas = pd.read_csv(form.csv.data,sep='\t',index_col=0)
+		except XLRDError:
+			flash(u'csv文件无法读取！')
+		if not set(map(lambda x:x in ['id','project','platform','server','date','time'],datas.columns)) == set([True]):
+			flash(u'csv文件格式错误！')
+		else:
+			for id in datas.index:
+				new = ServerInfo(project=datas.loc[id,'project'].decode('utf-8'),
+					platform=datas.loc[id,'project'].decode('utf-8'),
+					server_id=datas.loc[id,'server'].astype(int),
+					date=datetime.datetime.strptime(datas.loc[id,'date'],'%Y-%m-%d'),
+					time=datas.loc[id,'time'])
+				db.session.add(new)
+			db.session.commit()
+	csv=bool(request.cookies.get('import'))
+	return render_template('servers.html',project=project,pagination=pagination,servers=servers,csv=csv,form=form,end_point='.new_servers')
+	
+@main.route('/add_servers/',methods=['GET','POST'])
+def add_servers():
+	form = ServerForm()
+	project = request.args.get('project') or 'naruto'
+	if form.validate_on_submit():
+		server = ServerInfo(project=form.project.data,
+			platform = form.platform.data,
+			server_id = form.server.data,
+			date = form.date.data,
+			time = form.time.data)
+		db.session.add(server)
+		db.session.commit()
+		return redirect(url_for('main.new_servers',project=project))
+	return render_template('edit.html',form=form,project=project)
+	
+@main.route('/edit_servers/<int:id>',methods=['GET','POST'])
+def edit_servers(id):
+	form = ServerForm()
+	project = request.args.get('project') or 'naruto'
+	server = ServerInfo.query.get_or_404(id)
+	if form.validate_on_submit():
+		server.project = form.project.data
+		server.platform = form.platform.data
+		server.server_id = form.server.data
+		server.date = form.date.data
+		server.time = form.time.data
+		db.session.add(server)
+		db.session.commit()
+		return redirect(url_for('.new_servers',project=project))
+	form.project.data = server.project
+	form.platform.data = server.platform
+	form.server.data = server.server_id
+	form.date.data = server.date
+	form.time.data = server.time
+	return render_template('edit.html',form=form,project=project)
+	
+@main.route('/delete_servers/<int:id>')
+def delete_servers(id):
+	project = request.args.get('project') or 'naruto'
+	resp = make_response(redirect(url_for('main.new_servers',proejct=project)))
+	server = ServerInfo.query.get_or_404(id)
+	db.session.delete(server)
+	return resp

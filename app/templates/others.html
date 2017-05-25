@@ -52,11 +52,14 @@
 	</div>
 {% endif %}
 
-<p> 
+<div class = 'col-md-4'>
 	{{ wtf.quick_form(form3) }}
 	<ul>
 		<li>{{desc}}</li>
 		<li>{{json}}</li>
 	</ul>
-</p>
+</div>
+<div class = 'col-md-8'>
+	{{ wtf.quick_form(form4) }}
+</div>
 {% endblock %}

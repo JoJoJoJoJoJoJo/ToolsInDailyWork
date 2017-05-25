@@ -63,3 +63,11 @@ class PackForm(FlaskForm):
 	items = StringField(u'道具',validators=[Required()])
 	language = SelectField(u'语言版本',choices=[('ALL',u'全部'),('CN',u'国内'),('US','NA'),('FR',u'法语'),('BR',u'巴西'),('TH',u'泰语')])
 	submit3 = SubmitField(u'提交')
+	
+class ServerForm(FlaskForm):
+	project = RadioField(u'项目',choices=[('naruto',u'火影'),('dragonball',u'龙珠')])
+	platform = StringField(u'平台',validators=[Required()])
+	server = IntegerField(u'服务器',validators=[Required(),NumberRange(0,2000)])
+	date = DateField(u'开服日期',validators=[Required()])
+	time = StringField(u'开服时间',validators=[Required(),Regexp(r'^(0[0-9]|1[0-9]|2[0-3]|[0-9])\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9]|[0-9])$')])
+	submit = SubmitField(u'提交')
