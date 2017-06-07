@@ -67,7 +67,11 @@ def orders(project):
 def items(project):
 	item_form = ItemForm()
 	page = request.args.get('page',1,type=int)
-	items = None
+	items = Items.query.filter_by(project=project).paginate(page,per_page=20,error_out=False)
+	name = request.args.get('name')
+	if name and not item_form.validate_on_submit():
+		item_form.name.data = name
+		items = Items.query.filter(Items.name.ilike('%'+item_form.name.data+'%')).filter_by(project=project).paginate(page,per_page=20,error_out=False)
 	if item_form.validate_on_submit():
 		if item_form.name.data:
 			items = Items.query.filter(Items.name.ilike('%'+item_form.name.data+'%')).filter_by(project=project)
@@ -78,12 +82,13 @@ def items(project):
 		else:
 			items = Items.query.filter_by(project=project)
 		if item_form.language.data == 'ALL':
-			items = items.paginate(page,per_page=20,error_out=False)
+			#新的查询重置页码
+			items = items.paginate(1,per_page=20,error_out=False)
 		else:
-			items = items.filter_by(language_version=item_form.language.data).paginate(page,per_page=20,error_out=False)
+			items = items.filter_by(language_version=item_form.language.data).paginate(1,per_page=20,error_out=False)
 	#为了实现在没有查询时显示所有道具
-	if not items:
-		items = Items.query.filter_by(project=project).paginate(page,per_page=20,error_out=False)
+	#if not items:
+		#items = Items.query.filter_by(project=project).paginate(page,per_page=20,error_out=False)
 	pagination = [{'item_id':item.item_id,
 		'name':item.name,
 		'function_id':item.function_id,
@@ -407,12 +412,13 @@ def new_servers():
 		else:
 			for id in datas.index:
 				new = ServerInfo(project=datas.loc[id,'project'].decode('utf-8'),
-					platform=datas.loc[id,'project'].decode('utf-8'),
+					platform=datas.loc[id,'platform'].decode('utf-8'),
 					server_id=datas.loc[id,'server'].astype(int),
 					date=datetime.datetime.strptime(datas.loc[id,'date'],'%Y-%m-%d'),
 					time=datas.loc[id,'time'])
 				db.session.add(new)
 			db.session.commit()
+		return redirect(url_for('.new_servers'))
 	csv=bool(request.cookies.get('import'))
 	return render_template('servers.html',project=project,pagination=pagination,servers=servers,csv=csv,form=form,end_point='.new_servers')
 	

@@ -81,7 +81,7 @@
 
 {% if pagination %}
 <div class = 'pagination'>
-	{{ macros.pagination_widget(items,end_point,fragmeng='#top',project=project) }}
+	{{ macros.pagination_widget(items,end_point,project=project,name=form1.name.data) }}
 </div>
 {% endif %}
 {% endblock %}

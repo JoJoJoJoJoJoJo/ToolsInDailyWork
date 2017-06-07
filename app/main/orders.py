@@ -32,7 +32,7 @@ class Revenue():
 			#取绝对路径以方便调用
 			file = os.path.join(self.path,excel)
 			try:
-				data = pd.read_excel(file,index_col=0,na_values=['NA'])
+				data = pd.read_excel(file,index_col=0,encoding='gbk',na_values=['NA'])
 			except XLRDError:
 				data = pd.read_csv(file,sep='\t',encoding='gbk',index_col=0,na_values=['NA'])
 				
