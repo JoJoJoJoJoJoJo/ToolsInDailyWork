@@ -465,3 +465,8 @@ def delete_servers(id):
 	server = ServerInfo.query.get_or_404(id)
 	db.session.delete(server)
 	return resp
+
+@main.after_request
+def removeHeader(resp):
+	resp.headers['Server']=''
+	return resp
