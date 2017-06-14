@@ -11,7 +11,7 @@ class Config:
 		pass
 		
 	SECRET_KEY='You Shall Not Pass'	
-	SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(basedir,'data.sqlite')
+	SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///'+os.path.join(basedir,'data.sqlite')
 	SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 	SQLALCHEMY_TRACK_MODIFICATIONS = True
 	UPLOADED_FILES_DEST = os.getcwd()
