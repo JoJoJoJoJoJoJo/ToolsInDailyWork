@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 from . import main
-from flask import render_template,request,flash,make_response,send_file,redirect,url_for
+from flask import render_template,request,flash,make_response,send_file,redirect,url_for,current_app,abort
 from .forms import *
 from .excel_pandas import *
 import os
@@ -20,6 +20,34 @@ def index():
 		project= form.name.data
 	return render_template('index.html',form=form,project=project)
 	
+@main.route('/check-in/<name>')
+def check_in(name):
+	date = datetime.date.today()
+	user = User.query.filter_by(name=name).first()
+	if user is None:
+		flash(u'未找到用户，请先注册')
+	schedule = Schedule.query.filter_by(date=date,user=name).first()
+	if schedule is None:
+		schedule = Schedule(user=name,date=date)
+	schedule.in_time = datetime.datetime.utcnow()
+	db.session.add(schedule)
+	db.session.commit()
+	flash(u'上班时间记录成功')
+	return redirect(url_for('.index'))
+	
+@main.route('/check-out/<name>')
+def check_out(name):
+	date = datetime.date.today()
+	schedule = Schedule.query.filter_by(date=date,user=name).first()
+	if schedule is None:
+		flash(u'缺少上班记录，已填默认值，请稍后联系管理员修改')
+		schedule = Schedule(user=name,date=date)
+	schedule.out_time = datetime.datetime.utcnow()
+	db.session.add(schedule)
+	db.session.commit()
+	flash(u'下班时间记录成功')
+	return redirect(url_for('.index'))
+
 @main.route('/outline/<project>',methods=['GET','POST'])
 @main.route('/outline/',methods=['GET','POST'])
 def outline(project='naruto'):
@@ -75,6 +103,7 @@ def items(project):
 	if item_form.validate_on_submit():
 		if item_form.name.data:
 			items = Items.query.filter(Items.name.ilike('%'+item_form.name.data+'%')).filter_by(project=project)
+			current_app.logger.log(20,'searching %s'%item_form.name.data)
 		elif item_form.item_id.data:
 			items = Items.query.filter_by(item_id=item_form.item_id.data,project=project)
 		elif item_form.function_id.data:
@@ -86,6 +115,7 @@ def items(project):
 			items = items.paginate(1,per_page=20,error_out=False)
 		else:
 			items = items.filter_by(language_version=item_form.language.data).paginate(1,per_page=20,error_out=False)
+		
 	#为了实现在没有查询时显示所有道具
 	#if not items:
 		#items = Items.query.filter_by(project=project).paginate(page,per_page=20,error_out=False)
@@ -99,9 +129,9 @@ def items(project):
 		
 	import_form = ImportForm()
 	if import_form.validate_on_submit():
-		filename = files.save(import_form.csv.data,name='items.csv')
+		#filename = files.save(import_form.csv.data,name='items.csv')
 		try:
-			datas = pd.read_csv('items.csv',sep='\t',error_bad_lines=False,na_values=['NA'])
+			datas = pd.read_csv(import_form.csv.data,sep='\t',error_bad_lines=False,na_values=['NA'])
 		except XLRDError:
 			flash(u'csv文件无法读取！')
 		#判定csv中是否有这几个列
@@ -114,7 +144,7 @@ def items(project):
 			for id in datas.index:
 				#pandas读取到的数字需先转化成int型
 				#字符串需要转化成string
-				new = Items.query.filter_by(item_id=id.astype(int),language_version=datas.loc[id,'language']).first()
+				new = Items.query.filter_by(item_id=datas.loc[id,'item_id'].astype(int),language_version=datas.loc[id,'language']).first()
 				if new is None:
 					new = Items(item_id=datas.loc[id,'item_id'].astype(int))
 				new.function_id = datas.loc[id,'function_id'].astype(int)
@@ -123,7 +153,7 @@ def items(project):
 				new.language_version = datas.loc[id,'language']
 				db.session.add(new)
 			db.session.commit()
-		os.remove(basedir+'\\items.csv')
+		#os.remove(basedir+'\\items.csv')
 			
 	import_csv = bool(request.cookies.get('import'))
 	return render_template('items.html',pagination=pagination,end_point='.items',form1=item_form,form2=import_form,project=project,csv=import_csv,items=items)
@@ -220,6 +250,7 @@ def atype(project):
 				db.session.add(new)
 			db.session.commit()
 		os.remove(basedir+'\\activities.csv')
+		return redirect(url_for('.cancel_import',end_point=end_point))
 			
 	import_csv = bool(request.cookies.get('import'))
 	return render_template('activity.html',pagination=pagination,end_point='.atype',form1=form_a,form2=import_form,project=project,csv=import_csv,activities=activities)
@@ -281,7 +312,7 @@ def export(end_point):
 			#pd.Seires创建的是一个列而不是一行，所以不能直接append
 			#pd的append与list的append不同，它不会改变原始对象的值
 			file = file.append(pd.DataFrame([item.item_id,item.function_id,item.name,item.project,item.language_version],index=file.columns).T)
-		file.to_csv('app/download.csv',index_label=None,sep='\t')
+		file.to_csv('app/download.csv',index_label=None,sep='\t',encoding='utf-8')
 	elif end_point == '.atype':
 		activity = Activity.query.all()
 		file = pd.DataFrame(columns=['activity_id','name','art_id','project'])
@@ -465,8 +496,37 @@ def delete_servers(id):
 	server = ServerInfo.query.get_or_404(id)
 	db.session.delete(server)
 	return resp
+	
+@main.route('/manage/<name>',methods=['GET','POST'])
+def manage(name):
+	u=User.query.filter_by(name=name).first()
+	page = request.args.get('page',1,type=int)
+	if not u:
+		flash(u'用户不存在！')
+	admin = Role.query.filter_by(name='Admin').first()
+	if u.role is not admin:
+		abort(404)
+	schedule = Schedule.query.filter_by(user=name).order_by(Schedule.date)
+	if schedule is None:
+		flash(u'尚未有任何记录')
+	pagination = schedule.paginate(page,per_page=20,error_out=False)
+	records = [{'in_time':item.in_time,
+		'out_time':item.out_time,
+		'date':item.date,
+		'late':item.late} for item in pagination.items]
+	return render_template('manage.html',name=name,pagination=pagination,records=records,total=u.cal_leave())
 
 @main.after_request
 def removeHeader(resp):
 	resp.headers['Server']=''
 	return resp
+	
+@main.context_processor
+def inject_checked():
+	date = datetime.date.today()
+	today = Schedule.query.filter_by(date=date).first()
+	checked = False
+	if today:
+		checked = today.in_time
+	name = 'whr'
+	return dict(checked=checked,name=name)

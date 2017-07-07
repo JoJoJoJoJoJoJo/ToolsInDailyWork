@@ -65,7 +65,15 @@ class MakePivotByPandas(object):
 			except TypeError:
 				raise TypeError
 		self.new_table=new_table
-	
+		x=0
+		for i in [u'服务器',u'总安装数',u'新安装数',u'创号人数',u'创号率',u'最高在线',u'日活跃数',u'充值总次数',u'每日充值金币',u'每日充值金额',u'每日充值次数',u'每日充值人数','darppu','Pay rate']:
+			try:
+				data=self.new_table.pop(i)
+				self.new_table.insert(x,i,data)
+			except KeyError:
+				self.new_table.insert(x,i,'null')
+			x+=1
+		
 	def set_path(self):
 		if not self.path:
 			self.path = basedir
@@ -91,7 +99,7 @@ class MakePivotByPandas(object):
 			self.merge_table()
 		except TypeError:
 			raise TypeError(u'文件无法合并')
-		self.new_table.to_excel('new.xlsx',sheet_name='sheet1',path_or_buf=self.path)
+		self.new_table.to_excel('gaishu.xlsx',sheet_name='sheet1',path_or_buf=self.path)
 		print u'处理完成！'
 
 app = MakePivotByPandas()		

@@ -32,6 +32,14 @@
 				</li>
 				<li><a href="{{url_for('.new_servers',project=project)}}">开服计划</a></li>
 			</ul>
+			<ul class = 'nav navbar-nav navbar-right'>
+				{% if checked %}
+				<li><a href = "{{url_for('.check_out',name=name)}}">下班打卡</a></li>
+				{% else %}
+				<li><a href = "{{url_for('.check_in',name=name)}}">上班打卡</a></li>
+				{% endif %}
+				<li><a href = "{{url_for('.manage',name=name)}}">管理</a></li>
+			</ul>
 		</div>
 	</div>
 </nav>

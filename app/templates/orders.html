@@ -24,8 +24,11 @@
 				{% for date in dates%}
 				<tr><td>{{date}}</td><td>{{ revenue[date] }}</td></tr>
 				{% endfor %}
+				<tr><td>总和</td><td>{{ revenue.values()|sum() }}</td></tr>
 			</tbody>
 		</table>
 	</div>
 {% endif %}
+
+
 {% endblock %}

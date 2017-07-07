@@ -38,6 +38,7 @@ class Config:
 
 class DevelopmentConfig(Config):
 	DEBUG = True
+	AUTHOR = 'whr'
 
 class ProductionConfig(Config):
 	@classmethod
