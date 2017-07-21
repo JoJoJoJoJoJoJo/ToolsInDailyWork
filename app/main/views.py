@@ -506,6 +506,7 @@ def manage(name):
 	page = request.args.get('page',1,type=int)
 	if not u:
 		flash(u'用户不存在！')
+		return redirect(url_for('.index'))
 	admin = Role.query.filter_by(name='Admin').first()
 	if u.role is not admin:
 		abort(404)
