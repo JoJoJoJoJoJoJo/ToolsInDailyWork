@@ -4,23 +4,14 @@
 
 {% block title %}道具表{% endblock %}
 
-<!--{#% block navbar %#}
-{{super()}}
+{% block page_content %}	
 
-<nav class = 'navbar-fixed-top'>
-	<div class='container'>
-		<div class = 'navbar-collapse collapse' id='navbar'>
-			<ul class = 'nav navbar-nav navbar-right'>
-				<li><a href = "{{url_for('.import_csv',end_point=end_point,project=project)}}">导入csv</a></li>
-				{% if csv %}<li><a href="{{url_for('.cancel_import',end_point=end_point,project=project)}}">取消导入</a></li>{% endif %}
-				<li><a href = "{{url_for('.export',end_point=end_point,project=project)}}">导出excel</a></li>
-			</ul>
-		</div>
-	</div>
-</nav>
-{#% endblock %#}
--->
-{% block page_content %}		
+<script>
+	function sure(){
+		confirm('sure?')
+		}
+</script>
+	
 <div class = 'container'>
 
 	<div class= 'jumbotron'>
@@ -32,7 +23,7 @@
 	
 </div>
 
-<form method='POST',action='/items'>
+<form method='POST' action='/items/{{project}}'>
 	{{ form1.csrf_token }}
 	{{ form1.hidden_tag() }}
 	{{ form1.name.label }}{{form1.name}}
@@ -70,7 +61,7 @@
 					</td>
 					<td>
 						<a href = "{{url_for('main.edit',id=item['item_id'],language=item['language'],project=item['project'])}}">编辑</a>/
-						<a href = "{{url_for('main.delete_item',id=item['item_id'],language=item['language'],project=item['project'])}}">删除</a>
+						<a onclick = 'sure()' href = "{{url_for('main.delete_item',id=item['item_id'],language=item['language'],project=item['project'])}}">删除</a>
 					</td>
 				</tr>
 				{% endfor %}

@@ -4,6 +4,24 @@
 
 {% block title %}开服计划{% endblock %}
 
+{% block head %}
+{{super()}}
+<script src='http://code.jquery.com/jquery-2.1.1.min.js'></script>
+<script>
+	$SCRIPT_ROOT={{ request.script_root|tojson|safe }}
+	$(document).ready(function(){
+		$('#button').click(function(){
+			$.get($SCRIPT_ROOT + '/send_email/',function(data,status){
+				if (status == 'success'){
+					alert(data)
+					}
+				})
+			})
+		})
+		
+</script>
+{% endblock %}
+
 {% block page_content %}		
 <div class = 'container'>
 
@@ -45,8 +63,10 @@
 			</tbody>
 		</table>
 	</div>
-
-
+	<div class='btn'>
+		<button type='button' id='button'>发送明日开服邮件</button>
+	</div>
+	<br/>
 {% if pagination %}
 <div class = 'pagination'>
 	{{ macros.pagination_widget(pagination,end_point,fragmeng='#top',project=project) }}

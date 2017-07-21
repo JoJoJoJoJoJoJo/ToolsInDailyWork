@@ -147,10 +147,13 @@ def items(project):
 				new = Items.query.filter_by(item_id=datas.loc[id,'item_id'].astype(int),language_version=datas.loc[id,'language']).first()
 				if new is None:
 					new = Items(item_id=datas.loc[id,'item_id'].astype(int))
-				new.function_id = datas.loc[id,'function_id'].astype(int)
-				new.name = datas.loc[id,'name'].decode('utf-8')
-				new.project = datas.loc[id,'project']
-				new.language_version = datas.loc[id,'language']
+				try:
+					new.function_id = datas.loc[id,'function_id'].astype(int)
+					new.name = datas.loc[id,'name'].decode('utf-8')
+					new.project = datas.loc[id,'project']
+					new.language_version = datas.loc[id,'language']
+				except:
+					print new.function_id
 				db.session.add(new)
 			db.session.commit()
 		#os.remove(basedir+'\\items.csv')
@@ -515,6 +518,24 @@ def manage(name):
 		'date':item.date,
 		'late':item.late} for item in pagination.items]
 	return render_template('manage.html',name=name,pagination=pagination,records=records,total=u.cal_leave())
+	
+@main.route('/send_email/')
+def send_email():
+	print current_app.config['MAIL_USERNAME']
+	print current_app.config['MAIL_PASSWORD']
+	send_mail(current_app.config['FLASK_ADMIN'],'servers','mail/server')
+	
+	return 'success'
+	
+@main.route('/testing/',methods=['GET','POST'])
+def testing():
+	#if request.get_json('l'):
+	#	return '<h1>ahahahahahahaha</h1>'	
+	return 'success'
+
+@main.route('/test',methods=['GET','POST'])
+def test():
+	return render_template('test.html')
 
 @main.after_request
 def removeHeader(resp):

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{{super()}}
+<script src='http://code.jquery.com/jquery-2.1.1.min.js'></script>
+<script>
+	$SCRIPT_ROOT={{ request.script_root|tojson|safe }}
+	$(document).ready(function(){
+		$('.btn').click(function(){
+			$.get($SCRIPT_ROOT+'/testing',function (data,status){
+				alert("Data: " + data + "\nStatus: " + status)
+				$('#p').html(data)
+				})
+			})
+		})
+	function loadxml(){
+		var ajax
+		if (window.XMLHttpRequest)
+			{ajax=new XMLHttpRequest()}
+		else
+			{ajax=new ActiveXObject('Microsoft.XMLHTTP')}
+		ajax.onreadystatechange=function(){
+			if (ajax.readyState==4 && ajax.status==200)
+				{document.getElementById('pp').innerHTML=ajax.responseText}
+			}
+			
+		ajax.open('POST','http://localhost:5000/testing/',true)
+		//ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+		ajax.send(l=1)
+		
+		}
+		
+</script>
+{% endblock %}
+
+{% block page_content %}
+<button class='btn' type='button'>click</button>
+<p id='p'>null</p>
+<button id='btn' type='button' onclick='loadxml()'>222</button>
+<p id='pp'>something</p>
+{% endblock %}
