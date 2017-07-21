@@ -24,7 +24,7 @@ def deploy():
 	from app.models import Items,Activity,ServerInfo
 	
 	upgrade()
-	
+	Role.insert_roles()
 
 if __name__ == '__main__':
 	manager.run()
