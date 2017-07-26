@@ -28,13 +28,13 @@ class Config:
 	CELERY_TASK_SERIALIZER = 'json'
 	CELERY_TASK_RESULT_EXIPRES = 1800
 	
-	CELERYBEAT_SCHEDULE = {
-		'day-every-minute':{
-			'task':'app.email.send_mail',
-			#'schedule':crontab(hour=11,minute=05),
-			'args':(FLASK_ADMIN,u'明日新服','mail/server')
-			}
-		}
+	#CELERYBEAT_SCHEDULE = {
+	#	'day-every-minute':{
+	#		'task':'app.email.send_mail',
+	#		#'schedule':crontab(hour=11,minute=05),
+	#		'args':(FLASK_ADMIN,u'明日新服','mail/server')
+	#		}
+	#	}
 
 class DevelopmentConfig(Config):
 	DEBUG = True

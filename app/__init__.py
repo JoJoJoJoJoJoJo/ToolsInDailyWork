@@ -6,6 +6,7 @@ from flask_uploads import UploadSet,configure_uploads
 from flask_mail import Mail
 from celery import Celery
 
+
 bootstrap = Bootstrap()
 db = SQLAlchemy()
 files = UploadSet('files',extensions=('csv'))

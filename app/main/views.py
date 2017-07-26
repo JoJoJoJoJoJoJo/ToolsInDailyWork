@@ -10,7 +10,7 @@ from ..models import *
 import json
 import datetime
 import time
-from ..email import send_mail
+from ..email import send_mail,send_async_email
 
 @main.route('/',methods=['GET','POST'])
 def index():
@@ -522,11 +522,18 @@ def manage(name):
 	
 @main.route('/send_email/')
 def send_email():
-	print current_app.config['MAIL_USERNAME']
-	print current_app.config['MAIL_PASSWORD']
-	send_mail(current_app.config['FLASK_ADMIN'],'servers','mail/server')
-	
-	return 'success'
+	tomorrow = datetime.date.today()+datetime.timedelta(1)
+	t_servers = ServerInfo.query.filter_by(date=tomorrow).all()
+	servers = [{'project':item.project,
+		'platform':item.platform,
+		'server_id':item.server_id,
+		'date':item.date.strftime('%Y-%m-%d'),
+		'time':item.time} for item in t_servers]
+	task = send_mail(current_app.config['FLASK_ADMIN'],'servers','mail/server',servers=servers)
+	if task.state == 'PENDING' :
+		return u'邮件发送中，请稍候'
+	else:
+		return task.state
 	
 @main.route('/testing/',methods=['GET','POST'])
 def testing():

@@ -9,11 +9,11 @@
 	<tbody>
 		{% for server in servers %}
 		<tr>
-			<td>{{ server.project }}</td>
-			<td>{{ server.platform }}</td>
-			<td>{{ server.server_id }}</td>
-			<td>{{ server.date }}</td>
-			<td>{{ server.time }}</td>
+			<td>{{ server['project'] }}</td>
+			<td>{{ server['platform'] }}</td>
+			<td>{{ server['server_id'] }}</td>
+			<td>{{ server['date'] }}</td>
+			<td>{{ server['time'] }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
